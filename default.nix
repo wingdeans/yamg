@@ -1,11 +1,32 @@
 { pkgs ? import <nixpkgs> {} }:
 
 let
-  cosmocc = pkgs.fetchzip {
-    url = "https://github.com/jart/cosmopolitan/releases/download/" +
-      "3.2.4/cosmocc-3.2.4.zip";
-    hash = "sha256-cuJAI+q6fmne0C6QTtfvu6WCBuLkgabCCRcxbMhR9tM=";
-    stripRoot = false;
+  cosmocc = pkgs.stdenv.mkDerivation rec {
+    pname = "cosmocc";
+    version = "3.2.4";
+
+    src = pkgs.fetchzip {
+      url = "https://github.com/jart/cosmopolitan/releases/download/" +
+        "${version}/cosmocc-${version}.zip";
+      hash = "sha256-cuJAI+q6fmne0C6QTtfvu6WCBuLkgabCCRcxbMhR9tM=";
+      stripRoot = false;
+    };
+
+    buildPhase = ''
+      for f in bin/x86_64-linux*; do
+        [ ! -L $f ] && bash $f --assimilate
+      done
+      for f in $(find libexec -type f -executable); do
+        bash $f --assimilate
+      done
+    '';
+
+    installPhase = ''
+      mkdir $out
+      cp -r * $out
+    '';
+
+    dontFixup = true;
   };
 
   cosmo-ncurses = pkgs.stdenv.mkDerivation rec {
@@ -21,7 +42,6 @@ let
 
     dontFixup = true;
 
-    buildInputs = [ pkgs.unzip ];
     makeFlags = [
       "COSMOCC=${cosmocc}"
       "o//third_party/ncurses/ncurses.a"
@@ -29,7 +49,7 @@ let
 
     preBuild = ''
       for f in build/bootstrap/*.com; do
-        $f --assimilate
+        bash $f --assimilate
       done
     '';
 
@@ -53,7 +73,10 @@ let
 in
 pkgs.stdenv.mkDerivation {
   name = "yamg";
-  src = builtins.fetchGit ./.;
+  src = builtins.fetchGit {
+    url = ./.;
+    shallow = true;
+  };
 
   buildInputs = [ cosmocc ];
 
