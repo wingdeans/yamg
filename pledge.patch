@@ -1,0 +1,12 @@
+diff --git a/src/usr.bin/mg/main.c b/src/usr.bin/mg/main.c
+--- a/src/usr.bin/mg/main.c
++++ b/src/usr.bin/mg/main.c
+@@ -71,7 +71,7 @@ main(int argc, char **argv)
+ 	int	  	 nobackups = 0;
+ 	struct buffer	*bp = NULL;
+ 
+-	if (pledge("stdio rpath wpath cpath fattr chown getpw tty proc exec",
++	if (pledge("stdio rpath wpath cpath fattr chown tty proc exec",
+ 	    NULL) == -1)
+ 		err(1, "pledge");
+ 
