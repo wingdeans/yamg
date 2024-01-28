@@ -13,11 +13,8 @@ let
     };
 
     buildPhase = ''
-      for f in bin/x86_64-linux*; do
-        [ ! -L $f ] && bash $f --assimilate
-      done
-      for f in $(find libexec -type f -executable); do
-        bash $f --assimilate
+      for f in $(find . -type f -executable); do
+        [ $(head -c8 $f) = "MZqFpD='" ] && bash $f --assimilate
       done
     '';
 
